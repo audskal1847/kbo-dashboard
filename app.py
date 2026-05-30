@@ -25,7 +25,7 @@ page_bg_img = f"""
     content: "";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(255, 255, 255, 0.85); /* 0.85는 흰색의 진한 정도입니다. (0.0~1.0) */
+    background-color: rgba(255, 255, 255, 0.95); /* 0.85는 흰색의 진한 정도입니다. (0.0~1.0) */
     z-index: -1;
 }}
 </style>
