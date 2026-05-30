@@ -48,7 +48,7 @@ with st.sidebar:
         "원하시는 항목을 선택하세요:",
         [
             "🔍 도윤이의 선수 검색기", 
-            "🏆 정규시즌 팀 순위",   # ⭐ 팀 순위 메뉴
+            "🏆 정규시즌 팀 순위", 
             "🏃 타자 순위 (Top 30)", 
             "⚾ 투수 순위 (Top 30)", 
             "🏟️ 관중 현황",
@@ -187,17 +187,18 @@ if menu == "🔍 도윤이의 선수 검색기":
         else:
             st.warning("선수 이름을 먼저 입력해주세요.")
 
-# ⭐ 에러 없이 완벽하게 부활한 '팀 순위' 전용 로직
+# ⭐ 직접 찾아주신 정확한 KBO 주소를 반영한 완벽한 팀 순위 로직
 elif menu == "🏆 정규시즌 팀 순위":
     st.title("🏆 정규시즌 팀 순위")
     st.markdown("현재 KBO 리그 팀 순위입니다. (가장 빠르고 정확한 KBO 공식 실시간 데이터를 가져옵니다)")
     
     with st.spinner("순위 데이터를 불러오는 중입니다..."):
         try:
-            kbo_url = "https://www.koreabaseball.com/TeamRank/TeamRank.aspx"
+            # 💡 직접 찾아주신 완벽한 주소 적용!
+            kbo_url = "https://www.koreabaseball.com/Record/TeamRank/TeamRankDaily.aspx"
             response = requests.get(kbo_url, headers=headers)
             
-            # BeautifulSoup을 사용해 정확히 순위표(tData 클래스)만 콕 집어서 가져옵니다.
+            # BeautifulSoup을 사용해 표를 찾습니다.
             soup = BeautifulSoup(response.text, 'html.parser')
             table = soup.find('table', {'class': 'tData'})
             
@@ -217,7 +218,7 @@ elif menu == "🏆 정규시즌 팀 순위":
                 if '게임차' in df.columns:
                     df['게임차'] = pd.to_numeric(df['게임차'], errors='coerce').map('{:.1f}'.format)
                 
-                st.success("성공! KBO 공식 실시간 팀 순위입니다.")
+                st.success("성공! KBO 공식 홈페이지의 실시간 팀 순위입니다.")
                 st.dataframe(df, use_container_width=True, hide_index=True)
             else:
                 st.warning("현재 KBO 홈페이지에서 팀 순위 표를 제공하지 않고 있습니다.")
