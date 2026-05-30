@@ -18,7 +18,6 @@ with st.sidebar:
     st.image("https://upload.wikimedia.org/wikipedia/ko/8/82/KBO_%EB%A1%9C%EA%B3%A0.svg", width=150)
     st.header("📊 데이터 메뉴")
     
-    # 데이터가 제대로 제공되지 않는 '팀 순위'와 '예상 달성 기록' 삭제
     menu = st.radio(
         "원하시는 항목을 선택하세요:",
         [
@@ -27,8 +26,7 @@ with st.sidebar:
             "⚾ 투수 순위 (Top 30)", 
             "🏟️ 관중 현황",
             "📜 역대 기록 (타자)",
-            "📜 역대 기록 (투수)",
-            "⚔️ 스탯티즈 만능 데이터 검색"
+            "📜 역대 기록 (투수)"
         ]
     )
 
@@ -136,33 +134,3 @@ elif menu == "📜 역대 기록 (타자)":
 
 elif menu == "📜 역대 기록 (투수)":
     fetch_and_display_data("📜 역대 기록 (투수 부문)", "https://www.koreabaseball.com/Record/History/Top/Pitcher.aspx")
-
-# ==========================================
-# 6. 스탯티즈 만능 크롤러
-# ==========================================
-elif menu == "⚔️ 스탯티즈 만능 데이터 검색":
-    st.title("⚔️ 스탯티즈 만능 데이터 검색")
-    st.markdown("원하시는 스탯티즈(Statiz) 페이지의 인터넷 주소(URL)를 복사해서 아래 빈칸에 붙여넣어주세요. 해당 페이지에 있는 모든 통산 성적과 대결 기록 표를 한 번에 긁어옵니다!")
-    
-    default_statiz_url = "https://statiz.co.kr/team/?m=cteam&ct_code=1"
-    statiz_url = st.text_input("🔗 스탯티즈 주소(URL) 입력:", value=default_statiz_url)
-
-    if st.button("스탯티즈 데이터 가져오기", type="primary"):
-        with st.spinner("스탯티즈에서 통산 기록과 대결 기록을 수집하는 중입니다..."):
-            try:
-                response = requests.get(statiz_url, headers=headers)
-                tables = pd.read_html(io.StringIO(response.text), flavor=['lxml', 'html5lib'])
-                
-                if not tables:
-                    st.warning("입력하신 페이지에는 표 형태의 데이터가 없습니다.")
-                else:
-                    st.success(f"성공! 총 {len(tables)}개의 표를 찾았습니다.")
-                    for i, table in enumerate(tables):
-                        st.subheader(f"📊 수집된 데이터 표 {i+1}")
-                        table.dropna(how='all', inplace=True)
-                        st.dataframe(table, use_container_width=True, hide_index=True)
-                        
-            except ValueError:
-                st.error("해당 주소에서 읽을 수 있는 표 구조를 찾지 못했습니다. 주소를 다시 확인해주세요.")
-            except Exception as e:
-                st.error(f"오류가 발생했습니다 (서버 보안에 막혔을 수 있습니다): {e}")
