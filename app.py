@@ -147,28 +147,40 @@ if menu == "🔍 도윤이의 선수 검색기":
                             
                             player_stats = format_kbo_table(tables[0])
                             
+                            # 1군 빈 기록 패스
                             if player_stats.empty:
                                 continue
                             if len(player_stats) > 0 and "기록이 없습니다" in str(player_stats.iloc[0].values):
                                 continue
                                 
-                            # ⭐ 수정된 부분: 팀명을 찾을 때 '통산'이나 '합계'라는 글자는 무시하도록 필터링 추가
-                            team_str = ""
+                            # ⭐ 팀명 찾기 ('통산', '합계' 제외)
+                            team_name = ""
                             if '팀명' in player_stats.columns:
                                 teams = player_stats['팀명'].dropna().astype(str)
                                 teams = teams[~teams.str.contains('기록이 없습니다|통산|합계', na=False)]
                                 if not teams.empty:
-                                    recent_team = teams.iloc[-1] # 요약 줄을 제외한 가장 최근 진짜 소속팀 가져오기
-                                    team_str = f"({recent_team})"
+                                    team_name = teams.iloc[-1] # 요약 줄을 제외한 가장 최근 진짜 소속팀 가져오기
                                 
                                 player_stats = player_stats.drop(columns=['팀명'])
                             
-                            valid_results.append((team_str, player_stats))
+                            # ⭐ 표 구조를 보고 포지션(투수/야수) 자동 파악하기
+                            if '평균자책' in player_stats.columns or '평균자책점' in player_stats.columns:
+                                position = "투수"
+                            else:
+                                position = "야수"
+                            
+                            # 팀명과 포지션을 예쁘게 괄호로 묶기
+                            if team_name:
+                                team_pos_str = f"({team_name}, {position})"
+                            else:
+                                team_pos_str = f"({position})"
+                            
+                            valid_results.append((team_pos_str, player_stats))
                         
                         if valid_results:
                             st.success(f"성공! 총 {len(valid_results)}명의 1군 기록이 있는 '{name}' 선수를 찾았습니다.")
-                            for team_str, stats in valid_results:
-                                st.markdown(f"#### 👤 {name} 선수 {team_str}")
+                            for team_pos_str, stats in valid_results:
+                                st.markdown(f"#### 👤 {name} 선수 {team_pos_str}")
                                 st.dataframe(stats, use_container_width=True, hide_index=True)
                                 st.markdown("---")
                         else:
