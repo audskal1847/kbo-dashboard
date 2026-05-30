@@ -40,8 +40,8 @@ with st.sidebar:
     # ⭐ 왼쪽 상단에 깃허브에 올린 삼성 선수들 사진 추가
     sidebar_image_url = "https://github.com/audskal1847/kbo-dashboard/blob/main/KakaoTalk_20260531_064816799.jpg?raw=true"
     
-    # use_column_width=True를 설정하여 사이드바 가로폭에 사진이 딱 맞게 들어갑니다.
-    st.image(sidebar_image_url, use_column_width=True)
+    # ⭐ 요청하신 대로 사진 너비를 150픽셀로 고정하여 메뉴가 위로 올라오도록 수정했습니다.
+    st.image(sidebar_image_url, width=150)
     st.markdown("---")
     
     st.header("📊 데이터 메뉴")
