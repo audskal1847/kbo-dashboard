@@ -48,6 +48,7 @@ with st.sidebar:
         "원하시는 항목을 선택하세요:",
         [
             "🔍 도윤이의 선수 검색기", 
+            "🏆 정규시즌 팀 순위",   # ⭐ 새롭게 부활한 팀 순위 메뉴
             "🏃 타자 순위 (Top 30)", 
             "⚾ 투수 순위 (Top 30)", 
             "🏟️ 관중 현황",
@@ -147,29 +148,24 @@ if menu == "🔍 도윤이의 선수 검색기":
                             
                             player_stats = format_kbo_table(tables[0])
                             
-                            # 1군 빈 기록 패스
                             if player_stats.empty:
                                 continue
                             if len(player_stats) > 0 and "기록이 없습니다" in str(player_stats.iloc[0].values):
                                 continue
                                 
-                            # ⭐ 팀명 찾기 ('통산', '합계' 제외)
                             team_name = ""
                             if '팀명' in player_stats.columns:
                                 teams = player_stats['팀명'].dropna().astype(str)
                                 teams = teams[~teams.str.contains('기록이 없습니다|통산|합계', na=False)]
                                 if not teams.empty:
-                                    team_name = teams.iloc[-1] # 요약 줄을 제외한 가장 최근 진짜 소속팀 가져오기
-                                
+                                    team_name = teams.iloc[-1]
                                 player_stats = player_stats.drop(columns=['팀명'])
                             
-                            # ⭐ 표 구조를 보고 포지션(투수/야수) 자동 파악하기
                             if '평균자책' in player_stats.columns or '평균자책점' in player_stats.columns:
                                 position = "투수"
                             else:
                                 position = "야수"
                             
-                            # 팀명과 포지션을 예쁘게 괄호로 묶기
                             if team_name:
                                 team_pos_str = f"({team_name}, {position})"
                             else:
@@ -190,6 +186,42 @@ if menu == "🔍 도윤이의 선수 검색기":
                     st.error(f"오류가 발생했습니다: {e}")
         else:
             st.warning("선수 이름을 먼저 입력해주세요.")
+
+# ⭐ 부활한 정규시즌 팀 순위 메뉴 로직 (이중 안전장치)
+elif menu == "🏆 정규시즌 팀 순위":
+    st.title("🏆 정규시즌 팀 순위")
+    st.markdown("현재 KBO 리그 팀 순위입니다. (가장 안정적인 서버의 데이터를 실시간으로 가져옵니다)")
+    
+    with st.spinner("순위 데이터를 불러오는 중입니다..."):
+        try:
+            # 1순위: 표 형태를 가장 잘 유지하는 네이버 스포츠 PC버전 시도
+            naver_url = "https://sports.news.naver.com/kbaseball/record/index?category=kbo"
+            response = requests.get(naver_url, headers=headers)
+            tables = pd.read_html(io.StringIO(response.text), flavor=['lxml', 'html5lib'])
+            
+            if tables:
+                df = tables[0]
+                df.dropna(how='all', inplace=True)
+                st.dataframe(df, use_container_width=True, hide_index=True)
+                st.success("네이버 스포츠의 실시간 순위입니다.")
+            else:
+                raise ValueError("네이버 표를 찾을 수 없습니다.")
+                
+        except Exception:
+            # 2순위: 네이버가 자바스크립트로 막혔을 경우 KBO 공식 홈페이지로 재시도
+            try:
+                kbo_url = "https://www.koreabaseball.com/TeamRank/TeamRank.aspx"
+                response = requests.get(kbo_url, headers=headers)
+                tables = pd.read_html(io.StringIO(response.text), flavor=['lxml', 'html5lib'])
+                
+                if tables:
+                    df = format_kbo_table(tables[0])
+                    st.dataframe(df, use_container_width=True, hide_index=True)
+                    st.success("KBO 공식 홈페이지의 실시간 순위입니다.")
+                else:
+                    st.warning("현재 접속량이 많아 순위 표를 제공하는 서버들이 응답하지 않고 있습니다.")
+            except Exception as e:
+                st.error("데이터를 가져오는 중 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.")
 
 elif menu == "🏃 타자 순위 (Top 30)":
     fetch_and_display_data("🏃 타자 순위 (Top 30)", "https://www.koreabaseball.com/Record/Player/HitterBasic/Basic1.aspx")
