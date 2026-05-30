@@ -140,7 +140,6 @@ if menu == "🔍 도윤이의 선수 검색기":
                         
                         valid_results = []
                         
-                        # 선수 데이터를 하나씩 확인하면서 정리합니다
                         for href in unique_links:
                             detail_url = "https://www.koreabaseball.com" + href
                             detail_response = requests.get(detail_url, headers=headers)
@@ -148,28 +147,24 @@ if menu == "🔍 도윤이의 선수 검색기":
                             
                             player_stats = format_kbo_table(tables[0])
                             
-                            # ⭐ 1. "기록이 없습니다"만 있는 선수는 가차없이 패스합니다 (화면에 안 보임)
                             if player_stats.empty:
                                 continue
                             if len(player_stats) > 0 and "기록이 없습니다" in str(player_stats.iloc[0].values):
                                 continue
                                 
-                            # ⭐ 2. 표 안에 있는 '팀명'을 빼서 이름 옆으로 옮기기 위한 작업
+                            # ⭐ 수정된 부분: 팀명을 찾을 때 '통산'이나 '합계'라는 글자는 무시하도록 필터링 추가
                             team_str = ""
                             if '팀명' in player_stats.columns:
                                 teams = player_stats['팀명'].dropna().astype(str)
-                                teams = teams[~teams.str.contains('기록이 없습니다', na=False)]
+                                teams = teams[~teams.str.contains('기록이 없습니다|통산|합계', na=False)]
                                 if not teams.empty:
-                                    recent_team = teams.iloc[-1] # 가장 최근 소속팀 가져오기
+                                    recent_team = teams.iloc[-1] # 요약 줄을 제외한 가장 최근 진짜 소속팀 가져오기
                                     team_str = f"({recent_team})"
                                 
-                                # 이제 표 안에서는 '팀명' 기둥(컬럼)을 완전히 삭제합니다
                                 player_stats = player_stats.drop(columns=['팀명'])
                             
-                            # 통과한 진짜 1군 선수들만 리스트에 담아둡니다
                             valid_results.append((team_str, player_stats))
                         
-                        # ⭐ 3. 정리된 결과를 화면에 예쁘게 출력합니다
                         if valid_results:
                             st.success(f"성공! 총 {len(valid_results)}명의 1군 기록이 있는 '{name}' 선수를 찾았습니다.")
                             for team_str, stats in valid_results:
