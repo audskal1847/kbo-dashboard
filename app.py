@@ -8,9 +8,9 @@ import io
 st.set_page_config(page_title="도윤이의 KBO 기록 검색기", page_icon="⚾", layout="wide")
 
 # ==========================================
-# ⭐ 배경 사진 적용 (제공해주신 깃허브 주소 반영)
+# ⭐ 새로운 배경 사진 및 투명도(0.95) 적용
 # ==========================================
-background_image_url = "https://github.com/audskal1847/kbo-dashboard/blob/main/KakaoTalk_20260531_064816799.jpg?raw=true"
+background_image_url = "https://github.com/audskal1847/kbo-dashboard/blob/main/KakaoTalk_20260531_064807857.png?raw=true"
 
 page_bg_img = f"""
 <style>
@@ -20,12 +20,12 @@ page_bg_img = f"""
     background-position: center;
     background-repeat: no-repeat;
 }}
-/* 사진을 연하게 만들기 위해 반투명한 흰색 도화지를 위에 덮어줍니다 */
+/* 사진을 연하게 만들어 글자 가독성을 높이기 위해 반투명한 흰색 도화지를 위에 덮어줍니다 */
 [data-testid="stAppViewContainer"]::before {{
     content: "";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(255, 255, 255, 0.95); /* 0.85는 흰색의 진한 정도입니다. (0.0~1.0) */
+    background-color: rgba(255, 255, 255, 0.95); /* 요청하신 0.95 값으로 글자가 가장 잘 보이는 상태입니다 */
     z-index: -1;
 }}
 </style>
