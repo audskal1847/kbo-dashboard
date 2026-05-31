@@ -301,7 +301,7 @@ elif menu == "📅 8. 연도별 종합성적 (엑셀)":
     display_local_excel("📅 연도별 종합성적", "연도별 종합성적.xlsx")
 
 elif menu == "🏅 9. 역대 통산성적 (엑셀)":
-    display_local_excel("🏅 역대 통산성적", "통산성적.xlsx")
+    display_local_excel("🏅 역대 통산성적", "역대 통산성적.xlsx")
 
 elif menu == "📜 10. 역대 기록 (구단)":
     st.title("📜 역대 구단 성적")
